@@ -25,3 +25,5 @@ system(arg)
 arg = paste0(opt$plink_path, " --bfile ", opt$bfile, " --extract ", opt$out, ".prune.in --maf 0.05 --make-bed --out ", opt$out)
 system(arg)
 
+
+#changed
