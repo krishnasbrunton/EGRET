@@ -11,7 +11,7 @@ option_list = list(
               help="module file name"),
   make_option("--module_dir", action="store", default=NA, type='character',
               help="directory containing modules"),
-  make_option("-output_dir", action="store", default=NA, type='character',
+  make_option("--output_dir", action="store", default=NA, type='character',
               help="directory to store association results")
 )
 opt = parse_args(OptionParser(option_list=option_list))
@@ -20,6 +20,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 tissue = opt$tissue
 module = opt$module
 module_dir = opt$module_dir
+output_dir = opt$output_dir
 
 for (fold in 0:5) {
   module_path = file.path("transPCO", tissue, paste0("fold_", fold), module_dir, module)
@@ -29,9 +30,9 @@ for (fold in 0:5) {
   genes_in_module = fread(module_path, header = FALSE)
   
   for (chr in 1:22) {
-    module_number = strsplit(module, "_")[[1]][2]
+    module_name = strsplit(module, "\\..")[[1]][1]
     result_file = file.path("transPCO", tissue, paste0("fold_", fold), "association_results",
-                           paste0("module_", module_number, "_chr_", chr, ".txt.gz"))
+                           paste0(module_name, "_chr_", chr, ".txt.gz"))
     if (file.exists(result_file)) next
 
     # Prepare gene expression file
@@ -41,7 +42,7 @@ for (fold in 0:5) {
     gene_expression_module = gene_expression[match(genes_in_module$V1, gene_expression$gene_id), ]
     expr_output_dir = file.path("transPCO", tissue, paste0("fold_", fold), "expression_files")
     dir.create(expr_output_dir, recursive = TRUE, showWarnings = FALSE)
-    expr_output_file = file.path(expr_output_dir, paste0("module_", module_number, ".txt"))
+    expr_output_file = file.path(expr_output_dir, paste0(module_name, ".txt"))
     fwrite(gene_expression_module, expr_output_file, sep = '\t', quote = FALSE, col.names = TRUE)
     
     # Load gene expression
@@ -86,8 +87,8 @@ for (fold in 0:5) {
     # Run Matrix eQTL
     assoc_output_dir = file.path("transPCO", tissue, paste0("fold_", fold), output_dir)
     dir.create(assoc_output_dir, recursive = TRUE, showWarnings = FALSE)
-
-    assoc_output_file = file.path(assoc_output_dir, paste0("module_", module_number, "_chr_", chr, ".txt"))
+    print(assoc_output_dir)
+    assoc_output_file = file.path(assoc_output_dir, paste0(module_name, "_chr_", chr, ".txt"))
     
     Matrix_eQTL_main(
       gene = gene,
@@ -105,7 +106,7 @@ for (fold in 0:5) {
     # Transform results
     results = fread(assoc_output_file, header = TRUE)
     matrix_form = dcast(results, SNP ~ gene, value.var = "t-stat", fun.aggregate = mean, drop = FALSE)
-    matrix_output_file = file.path(assoc_output_dir, paste0("matrix_module_", module_number, "_chr_", chr, ".txt.gz"))
+    matrix_output_file = file.path(assoc_output_dir, paste0("matrix_",module_name, "_chr_", chr, ".txt.gz"))
     fwrite(matrix_form, matrix_output_file, sep = "\t", row.names = FALSE, col.names = TRUE)
 
     # Cleanup

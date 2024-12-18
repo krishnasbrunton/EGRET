@@ -9,4 +9,4 @@
 #SBATCH --export=ALL
 #SBATCH -t 12:00:00
 
-Rscript $1 $2 $3 $4 $5 $6 $7
+Rscript $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11}
