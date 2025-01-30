@@ -26,9 +26,7 @@ expression_file = expression_file[, c("gene_id", individuals), with = FALSE]
 
 all_gene_info = fread("../data/GTEx_V8.txt.gz",header = T)
 expression_file$geneType = all_gene_info$geneType[match(expression_file$gene_id,all_gene_info$geneId)]
-expression_file = expression_file[expression_file$geneType == 'protein_coding']
-print(dim(expression_file))
-q()
+expression_file = expression_file[expression_file$geneType == 'protein_coding' | expression_file$geneType == 'lincRNA' | expression_file$geneType == 'antisense']
 
 
 fwrite(expression_file, paste0("expression_files/",tissue,"_expression.txt.gz"), col.names = TRUE, row.names = FALSE, quote = FALSE, sep = '\t')

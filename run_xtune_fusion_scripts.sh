@@ -1,7 +1,7 @@
 #!/bin/bash
 
 tissue=Whole_Blood
-plink_dir=plink_results/Whole_Blood/cis_transPCO/fold_0
+plink_dir=plink_results/Whole_Blood/cis_MatrixeQTL_GBAT_transPCO_4_mismatches/fold_0
 files=($(ls "$plink_dir" | grep bed))
 echo ${#files[@]}
 # Define the chunk size

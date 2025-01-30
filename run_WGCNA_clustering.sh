@@ -10,14 +10,13 @@
 #SBATCH -t 04:00:00
 
 
-
 Rscript 9.0_run_WGCNA_clustering.R \
 	--expression expression_files/Whole_Blood_expression.txt.gz \
-	--out modules_5_PCs/ \
+	--out modules_60_PCs_power_3/ \
 	--individuals ../TWAS_across_tissues/individuals_per_tissue/Whole_Blood_individuals.txt \
 	--covariates covariate_files/Whole_Blood_covariates.txt.gz \
 	--tissue Whole_Blood \
-	--num_PCs 5
+	--num_PCs 60
 
 #Rscript 9.02_WGCNA_clustering_reimplemented.R \
 #        --expression expression_files/Whole_Blood_expression.txt.gz \

@@ -14,7 +14,8 @@ library('scales')
 #results_yaxis = fread("results_sumstats/Whole_Blood/cis_GBAT_BASIL_results.txt",header = T)
 #results_xaxis = fread("results_sumstats/Whole_Blood/cis_BASIL_results.txt",header = T)
 #results_yaxis = fread("../trans_adapt/results_sumstats/Whole_Blood/cis_GBAT_results.txt",header = T)
-results_yaxis = fread("results_sumstats/Whole_Blood/cis_transPCO.txt")
+#results_yaxis = fread("results_sumstats/Whole_Blood/cis_transPCO.txt")
+results_yaxis = fread("results_sumstats/Whole_Blood/cis_transPCO_old.txt", header = T)
 
 #results_yaxis = fread("results_sumstats/Heart_Atrial_Appendage/cis_MatrixeQTL_1e-06_results.txt",header = T)
 
@@ -33,7 +34,7 @@ results_xaxis = fread("results_sumstats/Whole_Blood/cis_results.txt",header = T)
 
 #results_xaxis$gene = sapply(strsplit(results_xaxis$gene, "\\."), function(x) x[1])
 
-merged_results = merge(results_xaxis,results_yaxis, by = 'gene')
+merged_results = merge(results_xaxis,results_yaxis, by = 'gene', all.y= T)
 merged_results = replace(merged_results, is.na(merged_results), 0)
 merged_results[merged_results < 0] <- 0
 print(sort(merged_results$r2.y[which(merged_results$r2.x + 0.05< merged_results$r2.y)]))
@@ -49,7 +50,7 @@ print(sum(merged_results$r2.x > 0.4,na.rm = T))
 print(sum(merged_results$r2.y > 0.4,na.rm = T))
 print(sum(merged_results$r2.x > merged_results$r2.y))
 print(sum(merged_results$r2.y > merged_results$r2.x))
-pdf("plot of Whole_Blood cis versus cis_transPCO.pdf")
+pdf("plot of Whole_Blood cis versus cis_transPCO old.pdf")
 #plot(merged_results$r2.x,merged_results$r2.y, col = merged_results$color)
 plot(merged_results$r2.x, merged_results$r2.y, col = alpha(merged_results$color,0.2), pch = 19,)
 abline(a = 0,b = 1)

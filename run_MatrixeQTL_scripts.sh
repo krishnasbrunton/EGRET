@@ -9,7 +9,16 @@
 #SBATCH --export=ALL
 #SBATCH -t 08:00:00
 
+source ~/.bashrc
+conda activate transTWAS_env
 
-#Rscript 7_run_MatrixeQTL.R --tissue Whole_Blood
+tissue=$1
+pval_threshold=0.000001
 
-#Rscript 12.1_make_xtune_bed_cis_MatrixeQTL.R --tissue Whole_Blood
+Rscript 7_run_MatrixeQTL.R \
+    --tissue ${tissue}
+
+Rscript 8_make_MatrixeQTL_bed.R \
+    --tissue ${tissue} --pval_threshold ${pval_threshold}
+
+

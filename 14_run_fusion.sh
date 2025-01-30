@@ -21,15 +21,17 @@ home_dir=/expanse/lustre/projects/ddp412/kbrunton
 
 chunk_size=$2
 #Define output directions
-weights=xtune_fusion_models/${tissue}/cis_transPCO
+weights=xtune_fusion_models/${tissue}/cis_MatrixeQTL_GBAT_transPCO_4_mismatches_no_cis
 mkdir -p $weights
-wd=working/${tissue}/cis_transPCO
+wd=working/${tissue}/cis_MatrixeQTL_GBAT_transPCO_4_mismatches_no_cis
 mkdir -p $wd
-output=xtune_fusion_results/${tissue}/cis_transPCO
+output=xtune_fusion_results/${tissue}/cis_MatrixeQTL_GBAT_transPCO_4_mismatches_no_cis
 mkdir -p $output
 
+z_matrix_dir=z_matrices/${tissue}/cis_MatrixeQTL_GBAT_transPCO_4_mismatches_no_cis
+
 end_index=$3
-plink_dir=plink_results/$tissue/cis_transPCO
+plink_dir=plink_results/$tissue/cis_MatrixeQTL_GBAT_transPCO_4_mismatches
 
 for gene in $(ls ${plink_dir}/fold_0/ | grep .bed | head -n $end_index | tail -n $chunk_size)
 #for gene in $(find transPCO/Whole_Blood/fold_1/bed_files/ transPCO/Whole_Blood/fold_2/bed_files/ transPCO/Whole_Blood/fold_3/bed_files/ transPCO/Whole_Blood/fold_4/bed_files/ transPCO/Whole_Blood/fold_5/bed_files/ -type f -exec basename {} \; | sort | uniq)
@@ -44,7 +46,7 @@ alldonors=$(zcat $gefile | head -n 1)
 colind=$(echo $alldonors | sed 's| |\n|g' | nl | grep -f $individuals | awk 'BEGIN {ORS=","} {print $1}') #donor list always the same
 colind2=${colind%,}
 
-for i in {0..5}
+for i in {0..5} #changed
 do
 	mkdir -p $wd/fold_$i
 	../../kakamatsu/plink2 --bfile $plink_dir/fold_$i/$gene --make-bed --keep $individuals --indiv-sort f $individuals --out $wd/fold_$i/${gene}
@@ -57,5 +59,5 @@ do
 
 done
 echo "running xtune fusion"
-Rscript xtune_fusion.R --gene $gene --working_dir $wd --models xtune,lasso,enet,blup --output_dir $output --weights_dir $weights --tissue $tissue --PATH_plink ../../kakamatsu/plink2 --PATH_gemma ../full_workflow/gemma-0.98.5-linux-static-AMD64
+Rscript xtune_fusion_cis_trans.R --gene $gene --working_dir $wd --models xtune,lasso,enet,blup --output_dir $output --weights_dir $weights --tissue $tissue --PATH_plink ../../kakamatsu/plink2 --PATH_gemma ../full_workflow/gemma-0.98.5-linux-static-AMD64 --covar covariate_files/${tissue}_covariates.txt.gz --z_matrix_dir $z_matrix_dir
 done

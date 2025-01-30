@@ -22,27 +22,27 @@ if (!is.na(opt$results_dir)) {
 	file_dir = opt$results_dir
 } else {
 	#manually set fusion file directory
-	file_dir = paste0("xtune_fusion_results/",opt$tissue,"/cis_transPCO/")
+	file_dir = paste0("xtune_fusion_results/",opt$tissue,"/cis_transPCO_old/")
 }
 
 if (!is.na(opt$plink_dir)) {
 	plink_dir = opt$plink_dir
 } else {
 	#manually set plink file directory
-	plink_dir = paste0("plink_results/",opt$tissue,"/cis_transPCO/")
+	plink_dir = paste0("plink_results/",opt$tissue,"/cis_transPCO_old/")
 }
 
 if (!is.na(opt$weight_dir)) {
         weight_dir = opt$weight_dir
 } else {
         #manually set weight file directory
-        weight_dir = paste0("weights/",opt$tissue,"/cis_transPCO/")
+        weight_dir = paste0("weights/",opt$tissue,"/cis_transPCO_old/")
 }
 if (!is.na(opt$output_file)) {
 	output_file = opt$output_file
 } else {
 	#manually set output file
-	output_file = paste0("results_sumstats/",opt$tissue,"/cis_transPCO.txt")
+	output_file = paste0("results_sumstats/",opt$tissue,"/cis_transPCO_old.txt")
 }
 
 # -- OBTAIN INFO FROM GIVEN DIRECTORIES --
@@ -52,11 +52,11 @@ fusion_result_files = fusion_result_files[!grepl(pattern_to_exclude, fusion_resu
 print(file_dir)
 #fusion_result_files = fusion_result_files[1:10]
 model_results = c()
-
 for (gene in fusion_result_files) {
 	gene = substr(gene,1,nchar(gene)-4)
   	gene_info = readLines(paste0(file_dir,gene,".txt"))
 	print(gene)
+
   	if (file.size(file = paste0(file_dir,gene,".txt")) == 0 | length(gene_info) == 0) {
     		next
   	}
@@ -96,7 +96,6 @@ for (gene in fusion_result_files) {
     		num_nonzero_snps = 0
   	}
 	model_results = rbind(model_results,c(gene,heritability_info[3],heritability_info[4],heritability_info[7],num_snps,r2_info[2],pvalue_info[2],num_nonzero_snps))
-	print(model_results)
 }
 colnames(model_results) <- c("gene","h2","se","h2 pval","number of snps","r2","r2 pval","number non-zero snps")
 

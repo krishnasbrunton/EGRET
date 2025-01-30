@@ -22,12 +22,9 @@ for (fold in 0:5) {
 		subset = results[gene == current_gene,]
 		
 		dir.create(paste0("MatrixeQTL/",tissue,"/fold_",fold,"/results_",p_value_threshold,"_threshold/"),recursive = T)
-		snp_matrix = as.matrix(subset$SNP,ncol = 1)
-		fwrite(snp_matrix,paste0("MatrixeQTL/",tissue,"/fold_",fold,"/results_",p_value_threshold,"_threshold/",current_gene,".txt") ,quote = F, col.names = F, row.names = F)
+		snp_matrix = as.matrix(subset[, c("SNP", "p-value")])
+		fwrite(snp_matrix,paste0("MatrixeQTL/",tissue,"/fold_",fold,"/results_",p_value_threshold,"_threshold/",current_gene,".txt") ,quote = F, col.names = F, row.names = F,sep = '\t')
 		
 	}
-
-
-
 
 }

@@ -39,7 +39,7 @@ colnames(residual_gene_expression) = unlist(individual_ids)
 rownames(residual_gene_expression) = t(gene_ids)
 
 PC_column = 7 + opt$num_PCs
-
+print(covar[,c(3:..PC_column,68:70)])
 for (row in 1:nrow(gene_expression)) {
 	print(row)
 	reg = summary(lm( as.matrix(t(gene_expression[row,])) ~ as.matrix(covar[,c(3:..PC_column,68:70)]) ))
@@ -52,9 +52,10 @@ for (fold in 0:5) {
 
 	residual_gene_expression_no_xy = residual_gene_expression_fold_individuals[which(!rownames(residual_gene_expression) %in% genes_on_x_y_chr$geneId),]
 
-	power = c(c(1:10),seq(from = 12, to = 50, by = 2))
-	sft = pickSoftThreshold(t(residual_gene_expression_no_xy),powerVector = power,networkType = 'signed',verbose = 5)
-	power = sft$powerEstimate
+	#power = c(c(1:10),seq(from = 12, to = 50, by = 2))
+	#sft = pickSoftThreshold(t(residual_gene_expression_no_xy),powerVector = power,networkType = 'signed',verbose = 5)
+	#power = sft$powerEstimate
+	power = 3
 	print(paste0("The power is ", power))
 
 	temp_cor = cor
