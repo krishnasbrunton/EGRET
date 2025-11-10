@@ -9,6 +9,6 @@ Install dependences
 ## Setting up genotype files 
 
 
-'''
+```
 run this command 
-'''
+```
