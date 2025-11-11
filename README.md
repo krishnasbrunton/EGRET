@@ -15,3 +15,10 @@ The script 0_setup_genotypes.R takes an input plink formatted genotype files and
 ```
 Rscript 0_setup_genotypes.R --bfile {unprocessed plink files} --LD_r2 {LD threshold used for pruning SNPs} --LD_window {window size} --LD_chunk {chunk size} --out {output path} --plink_path {path to plink}
 ```
+
+## Setting up expression files
+The script 1_setup_expression.R takes as input expression (already normalized), tissue, covariates (for example sex, age, genotype PCs, gene expression PCs), gene information (such as gene type, location), and individuals to create a processed expression output. This script selects expression from only the individual ids specified. Next, we remove genes which are not protein coding, anti-sense RNA, or linc RNAs. Next the script regresses the provided covariates. The script outputs both processed expression (no covariate regression) and expression after covariate regression.
+
+```
+Rscript 1_setup_expression.R --expression {expression file} --tissue {tissue} --individuals {individual ids to keep} --out {output file name} --covariates {covariate file}
+```
