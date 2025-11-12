@@ -55,7 +55,7 @@ In EGRET, we implement Matrix eQTL, GBAT, and _trans_-PCO methods to identify _t
 We utilize the R package, Matrix eQTL, to conduct pairwise association between all genetic variants and gene expression. As input this script takes the tissue you wish to carry this analysis on. It is assumed that the setup scripts were run so it looks for their respective outputs.
 
 ```
-./run_MatrixeQTL_scripts.sh \
+./MatrixeQTL_scripts.sh \
     $tissue \
     $FDR \
     $output_dir
