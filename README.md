@@ -19,54 +19,34 @@ Recomended
 ## Setup
 We recommend using these setup scripts in order to ensure the formatting of your input files for EGRET are consistent with what the scripts expect. We also do some preprocessing in order to enhance computational efficiency.
 
-## Setting up genotype files 
-The script 0_setup_genotypes.R takes an input plink formatted genotype files and preprocesses them for EGRET. This script does two main things: prune SNPs by LD and removes rare variants (MAF < 0.05).
+| Argument                 | Description                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `genotypes_file_path`    | Path to PLINK `.bed/.bim/.fam` files containing genotype data.                                                |
+| `expression_file_path`   | Gene expression matrix (rows = genes, columns = individuals). Must include a `gene_id` column in ENSG format. |
+| `covariates_file_path`   | Covariate file (rows = individuals, columns = covariates to regress out).                                     |
+| `tissue`                 | Name of tissue for analysis. Used for labeling and output organization.                                       |
+| `individuals_file_path`  | File containing list of individual IDs (one per line, no header).                                             |
+| `LD_prune_r2`            | LD pruning threshold (default: `0.9`).                                                                        |
+| `plink_path`             | Path to PLINK2 executable.                                                                                    |
+| `genotype_output_prefix` | Prefix for pruned genotype output files.                                                                      |
+| `folds`                  | Number of cross-validation folds (e.g., 5).                                                                   |
+| `gene_info_file_path`    | File containing gene metadata (gene ID, name, chromosome, start position).                                    |
+| `output_dir`             | Directory to store all processed outputs.                                                                     |
 
 ```
-Rscript 0_setup_genotypes.R \
-  --bfile {unprocessed plink files} \
-  --LD_r2 {LD threshold used for pruning SNPs} \
-  --LD_window {window size} \
-  --LD_chunk {chunk size} \
-  --out {output path} \
-  --plink_path {path to plink}
-```
 
-## Setting up expression files
-The script 1_setup_expression.R takes as input expression (already normalized), tissue, covariates (for example sex, age, genotype PCs, gene expression PCs), gene information (such as gene type, location), and individuals to create a processed expression output. This script selects expression from only the individual ids specified. Next, we remove genes which are not protein coding, anti-sense RNA, or linc RNAs. Next the script regresses the provided covariates. The script outputs both processed expression (no covariate regression) and expression after covariate regression.
-
-```
-Rscript 1_setup_expression.R \
-  --expression {expression file} \
-  --tissue {tissue} \
-  --individuals {individual ids to keep} \
-  --out {output file name} \
-  --covariates {covariate file}
-```
-
-## Setting up folds
-The script 2_setup_folds.R divides individuals among folds prior to any model training. This essential for cross-validation R^2. Since many of the feature selection methods are lengthy, we have opted to store individuals for each fold and their respective gene expression and results. As a default we recommend 5-fold cross-validation, however, we have also provided the option to create more folds.
-
-| Option          | Type        | Default    | Description                                                                                                |
-| :-------------- | :---------- | :--------- | :--------------------------------------------------------------------------------------------------------- |
-| `--expression`  | `character` | *Required* | Path to gene expression matrix (genes × individuals).                                                      |
-| `--individuals` | `character` | *Required* | File containing list of individuals to include. Used to ensure consistent sample ordering across datasets. |
-| `--tissue`      | `character` | *Required* | Tissue name used for labeling or directory structure.                                                      |
-| `--covariates`  | `character` | *Optional* | Path to covariate file (e.g., PEER factors, genotype PCs). Must correspond to the same individuals.        |
-| `--folds`       | `numeric`   | `5`        | Number of cross-validation folds to create.                                                                |
-| `--plink_path`  | `character` | *Optional* | Path to the PLINK executable (used for genotype subsetting).                                               |
-| `--bfile`       | `character` | *Optional* | Path prefix to PLINK-format genotype files (.bed/.bim/.fam).                                               |
-
-
-```
-Rscript 2_setup_folds.R \
-  --expression path/to/expression_matrix.txt \
-  --individuals path/to/individual_list.txt \
-  --tissue "Whole_Blood" \
-  --covariates path/to/covariates.txt \
-  --folds 5 \
-  --plink_path /path/to/plink \
-  --bfile path/to/genotypes
+source setup_genotype_and_expression.sh \
+    $genotypes_file_path \
+    $expression_file_path \
+    $covariates_file_path \
+    $tissue \
+    $individuals_file_path \
+    $LD_prune_r2 \
+    $plink_path \
+    $genotype_output_prefix \
+    $folds \
+    $gene_info_file_path \
+    $output_dir
 ```
 
 ## Running Matrix eQTL, GBAT, and trans-PCO
