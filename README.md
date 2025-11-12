@@ -34,7 +34,7 @@ To setup expression and genotype files in the format that EGRET requires, we hav
 | `output_dir`             | Directory to store all processed outputs.                                                                     |
 
 ```
-source setup_genotype_and_expression.sh \
+./setup_genotype_and_expression.sh \
     $genotypes_file_path \
     $expression_file_path \
     $covariates_file_path \
