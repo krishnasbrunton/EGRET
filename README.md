@@ -17,7 +17,7 @@ Recomended
 -   xtune-lasso
 
 ## Setup
-We recommend using these setup scripts in order to ensure the formatting of your input files for EGRET are consistent with what the scripts expect. We also do some preprocessing in order to enhance computational efficiency.
+To setup expression and genotype files in the format that EGRET requires, we have created a wrapper script to carry out preprocessing of genoytype and expression data. All outputs are stored in the ouput_dir.
 
 | Argument                 | Description                                                                                                   |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------- |
@@ -34,7 +34,6 @@ We recommend using these setup scripts in order to ensure the formatting of your
 | `output_dir`             | Directory to store all processed outputs.                                                                     |
 
 ```
-
 source setup_genotype_and_expression.sh \
     $genotypes_file_path \
     $expression_file_path \
