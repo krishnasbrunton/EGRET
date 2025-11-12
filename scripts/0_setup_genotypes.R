@@ -18,12 +18,11 @@ option_list = list(
 
 opt = parse_args(OptionParser(option_list=option_list))
 
+dir.create(opt$out,recursive = T)
+
 arg = paste0(opt$plink_path, " --bfile ", opt$bfile, " --indep-pairwise ",opt$LD_window, " ",opt$LD_chunk, " ", opt$LD_r2, " --out ",opt$out)
 system(arg)
-
 
 arg = paste0(opt$plink_path, " --bfile ", opt$bfile, " --extract ", opt$out, ".prune.in --maf 0.05 --make-bed --out ", opt$out)
 system(arg)
 
-
-#changed
