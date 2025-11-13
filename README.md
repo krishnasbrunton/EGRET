@@ -74,7 +74,7 @@ GBAT utilizes previously trained cis-expression models to find genome-wide regul
     $output_dir
 ```
 
-## Running _trans_-PCO
+### Running _trans_-PCO
 
 
 
