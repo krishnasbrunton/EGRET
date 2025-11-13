@@ -4,7 +4,8 @@ EGRET is a multivariate linear model designed to identify genome-wide loci that 
 
 ## Installation
 ```
-git clone 
+git clone https://github.com/krishnasbrunton/EGRET.git
+cd EGRET
 ```
 
 ### Setting up the environment
@@ -22,17 +23,16 @@ Required
 -   optparse
 -   plink2R
 -   Matrix eQTL
-  
-Recomended
--   xtune-lasso
 
-To install xtune-lasso you wiil need to use devtools.
+To download plink go to: https://www.cog-genomics.org/plink/1.9/
+
+Recomended
+-   xtune
+
+To install xtune you wiil need to use devtools.
 ```
 library(devtools)
-devtools::install_github("JingxuanH/xtune", 
-                         build_vignettes = TRUE)
-
-library(xtune)
+devtools::install_github("JingxuanH/xtune", build_vignettes = TRUE)
 ```
 
 ## Setup
