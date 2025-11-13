@@ -63,7 +63,7 @@ We utilize the R package, Matrix eQTL, to conduct pairwise association between a
 
 ### Running GBAT
 GBAT utilizes previously trained cis-expression models to find genome-wide regulators. This code is designed to take as input models fitted by FUSION. 
-* if FUSION models have not already been generated, model weights can be downloaded from http://gusevlab.org/projects/fusion/
+* If FUSION models have not already been generated, model weights can be downloaded from http://gusevlab.org/projects/fusion/
 
 ```
 ./GBAT_scripts.sh \
