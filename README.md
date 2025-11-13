@@ -4,7 +4,12 @@ EGRET is a multivariate linear model designed to identify genome-wide loci that 
 
 ## Setting up the environment
 Install dependences
-- create yml file
+
+Setup environment using yml file.
+```
+conda env create -f environment.yml
+conda activate egret_env
+```
 
 R packages
 Required
@@ -15,6 +20,15 @@ Required
   
 Recomended
 -   xtune-lasso
+
+To install xtune-lasso you wiil need to use devtools.
+```
+library(devtools)
+devtools::install_github("JingxuanH/xtune", 
+                         build_vignettes = TRUE)
+
+library(xtune)
+```
 
 ## Setup
 To setup expression and genotype files in the format that EGRET requires, we have created a wrapper script to carry out preprocessing of genoytype and expression data. All outputs are stored in the ouput_dir.
