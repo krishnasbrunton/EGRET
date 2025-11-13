@@ -75,6 +75,39 @@ GBAT utilizes previously trained cis-expression models to find genome-wide regul
 ```
 
 ### Running _trans_-PCO
+transPCO finds the association between a module of genes and a variant.
+```
+./transPCO_scripts.sh \
+    $tissue \
+    $folds \
+    $FDR \
+    $num_PCs \
+    $output_dir
+```
+
+
+## Training EGRET models
+This script takes the input from the training of the models above and trains the genome-wide EGRET model and outputs the weights and model R2. We recommend using at least Matrix eQTL and GBAT. 
+
+In addition this script, will filter cross-mappable reads from alignment errors. As default we supply bed files containing cross-mappable beds for each gene in the hg38 genome build. If you want to filter cross-mappable regions in a different genome build, you can run the script 12.0_make_crossmappable_gene_beds.R with gene-gene mappabality scores provided by https://doi.org/10.12688/f1000research.17145.2.
+
+```
+./train_EGRET_models.sh \
+    $tissue \
+    $folds \
+    $models \
+    $output_dir
+```
+
+## Running EGRET-TWAS
+To conduct gene-trait association, we have provided the following script which takes as input gwas summary statistics and the models trained by EGRET to produce gene-trait associations.
+```
+./run_TWAS_scripts.sh \
+    $tissue \
+    $trait \
+    $gwas_sumstat_dir \
+    $output_dir
+```
 
 
 
