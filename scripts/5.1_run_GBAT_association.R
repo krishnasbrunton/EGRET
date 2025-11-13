@@ -4,7 +4,9 @@ library('optparse')
 
 option_list = list(
   make_option("--tissue", action="store",default=NA, type='character',
-              help="tissue for analysis")
+              help="tissue for analysis"),
+  make_option("--output_dir", action="store",default=NA, type='character',
+              help="directory where results are stored")
   )
 
 opt = parse_args(OptionParser(option_list=option_list))

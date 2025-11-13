@@ -25,7 +25,7 @@ folds="5"
 gene_info_file_path="../../data/GTEx_V8.txt.gz"
 output_dir="test_output"
 
-source setup_genotype_and_expression.sh \
+./setup_genotype_and_expression.sh \
     $genotypes_file_path \
     $expression_file_path \
     $covariates_file_path \
@@ -36,4 +36,19 @@ source setup_genotype_and_expression.sh \
     $genotype_output_prefix \
     $folds \
     $gene_info_file_path \
+    $output_dir
+
+
+./MatrixeQTL_scripts.sh \
+    $tissue \
+    $FDR \
+    $genotype_output_prefix \
+    $gene_info_file_path \
+    $output_dir
+
+
+./GBAT_scripts.sh \
+    $FDR \
+    $folds \
+    $gene_info \
     $output_dir

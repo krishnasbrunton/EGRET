@@ -13,8 +13,8 @@ option_list = list(
                 help="Path to file of expresion covariates"),
         make_option("--tissue", action="store",default=NA, type='character',
                 help="tissue for analysis"),
-	make_option("--num_PCs", action = 'store', default = 10, type = 'numeric',
-		    help = 'number of gene expression PCs to regress out')
+		make_option("--num_PCs", action = 'store', default = 10, type = 'numeric',
+		    	help = 'number of gene expression PCs to regress out')
   )
 
 opt = parse_args(OptionParser(option_list=option_list))

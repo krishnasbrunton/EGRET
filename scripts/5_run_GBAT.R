@@ -4,8 +4,13 @@ library('plink2R')
 
 option_list = list(
   make_option("--tissue", action="store",default=NA, type='character',
-              help="tissue for analysis")
+              help="tissue for analysis"),
+  make_option("--cis_model_dir", action="store",default=NA, type='character',
+              help="directory containing previously trained FUSION models"),
+  make_option("--output_dir", action="store",default=NA, type='character',
+              help="directory where results are stored")
   )
+  
 
 opt = parse_args(OptionParser(option_list=option_list))
 
@@ -16,7 +21,7 @@ if (is.na(opt$tissue)) {
 	tissue = opt$tissue
 }
 
-trans_genes = list.files(paste0("FUSION/",tissue,"/cis/"),pattern = ".RDat")
+trans_genes = list.files(paste0(opt$cis_model_dir),pattern = ".RDat")
 
 cis_predicted_expression = data.table()
 
@@ -25,28 +30,30 @@ for (trans_gene in trans_genes) {
 	gene_name = paste0(strsplit(trans_gene,"\\.")[[1]][1:2],collapse = ".")
 	print(gene_name)
 
-        load(paste0("FUSION/",tissue,"/cis/",trans_gene))
+    load(paste0(opt$cis_model_dir,trans_gene))
 	model_pval = cv.performance[2,colnames(cv.performance) == "lasso"]
-        if (is.na(model_pval) | model_pval > 0.01) {
-            next
-        }
-        print(paste("the r2 is",cv.performance[1,1]))
 
-        geno.file = paste0("plink_results/",tissue,"/cis/",gene_name)
-        if (!file.exists(paste0(geno.file,".bim"))) {
+	if (is.na(model_pval) | model_pval > 0.01) {
+		next
+	}
+
+	print(paste("the r2 is",cv.performance[1,1]))
+
+	geno.file = paste0("plink_results/",tissue,"/cis/",gene_name)
+	if (!file.exists(paste0(geno.file,".bim"))) {
 		next
 	}
 
 	genos = read_plink(geno.file,impute="avg")
-        genos_snps = scale(genos$bed)
+    genos_snps = scale(genos$bed)
 
 	cv.all = fread(paste0("working/",tissue,"/cis/",gene_name,".fam"),header = F)
-        cv.all = cv.all[,c(2,6)]
+    cv.all = cv.all[,c(2,6)]
 	
 	covar_file = fread(paste0("covariate_files/",tissue,"_covariates.txt.gz"),header = T)
 
 	reg = summary(lm( as.matrix(cv.all[,2]) ~ as.matrix(covar_file[,3:ncol(covar_file)]) ))
-        cv.all[,2] = scale(reg$resid)
+    cv.all[,2] = scale(reg$resid)
 
 	if (any(is.na(wgt.matrix))) {
 		next

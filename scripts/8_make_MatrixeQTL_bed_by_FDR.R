@@ -4,22 +4,30 @@ library('optparse')
 option_list = list(
   make_option("--tissue", action="store", default=NA, type='character',
               help="tissue"),
+  make_option("--folds", action="store",default=NA, type='numeric',
+              help="number of folds for analysis"),
   make_option("--FDR", action="store", default=0.1, type='numeric',
-              help="FDR rate to include snps into the model")
+              help="FDR rate to include snps into the model"),
+  make_option("--gene_info", action="store",default=NA, type='character',
+        	  help="file containg gene info such as gene id, gene name, start, chromosome, and gene type"),
+  make_option("--genotype_output_prefix", action="store",default=NA, type='character',
+        	  help="prefix to access bim file within genotypes folder "),
+  make_option("--output_dir", action="store",default=NA, type='character',
+              help="directory where results are stored")
   )
 
 opt = parse_args(OptionParser(option_list=option_list))
 tissue = opt$tissue
 
-all_gene_info = fread("../data/GTEx_V8.txt.gz", header = T)
-all_snp_info = fread("genotype_files/GTEX_v8_genotypes_pruned.bim", header = F)
+all_gene_info = fread(opt$gene_info, header = T)
+all_snp_info = fread(paste0("genotype_files/", opt$genotype_output_prefix ,".bim", header = F)
 
-gene_expression = fread(paste0("expression_files/",tissue,"_expression_regressed.txt.gz"),header = T)
+gene_expression = fread(paste0(opt$output_dir,"/expression_files/",tissue,"_expression_regressed.txt.gz"),header = T)
 
 for (fold in 0:5) {
-	results = fread(paste0("MatrixeQTL/",tissue,"/association_results_fold_",fold,"_0.001_threshold.txt"),header = T)
+	results = fread(paste0(opt$output_dir,"/MatrixeQTL/",tissue,"/association_results_fold_",fold,"_0.0001_threshold.txt"),header = T)
 	genes = unique(results$gene)
-	output_dir = paste0("MatrixeQTL/",tissue,"/fold_",fold,"/results_FDR_",opt$FDR,"/")
+	output_dir = paste0(opt$output_dir,"/MatrixeQTL/",tissue,"/fold_",fold,"/results_FDR_",opt$FDR,"/")
 	largest_sig_pval = c()
 	for (current_gene in genes) {
 		subset = results[gene == current_gene,]
@@ -40,6 +48,4 @@ for (fold in 0:5) {
 		fwrite(snp_matrix,paste0(output_dir,current_gene,".txt") ,quote = F, col.names = F, row.names = F,sep = '\t')
 		
 	}
-	print(mean(largest_sig_pval,na.rm = T))
-
 }
