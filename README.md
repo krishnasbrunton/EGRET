@@ -31,6 +31,7 @@ To setup expression and genotype files in the format that EGRET requires, we hav
 | `genotype_output_prefix` | Prefix for pruned genotype output files.                                                                      |
 | `folds`                  | Number of cross-validation folds (e.g., 5).                                                                   |
 | `gene_info_file_path`    | File containing gene metadata (gene ID, name, chromosome, start position).                                    |
+| `FDR`                    | False discovery rate (FDR) that will be used to select significant variants                                   |
 | `output_dir`             | Directory to store all processed outputs.                                                                     |
 
 ```
@@ -67,10 +68,13 @@ GBAT utilizes previously trained cis-expression models to find genome-wide regul
 
 ```
 ./GBAT_scripts.sh \
-  
-
-
+    $FDR \
+    $folds \
+    $gene_info \
+    $output_dir
 ```
+
+## Running _trans_-PCO
 
 
 
