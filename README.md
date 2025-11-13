@@ -48,7 +48,7 @@ To setup expression and genotype files in the format that EGRET requires, we hav
     $output_dir
 ```
 
-## Running Matrix eQTL, GBAT, and trans-PCO
+## Running Matrix eQTL, GBAT, and _trans_-PCO
 In EGRET, we implement Matrix eQTL, GBAT, and _trans_-PCO methods to identify _trans_-variants with potential to enhance gene expression models. Each one is run separatly and the outputs of each is used in the final training of the genome-wide model.
 
 ### Running Matrix eQTL
@@ -62,7 +62,15 @@ We utilize the R package, Matrix eQTL, to conduct pairwise association between a
 ```
 
 ### Running GBAT
+GBAT utilizes previously trained cis-expression models to find genome-wide regulators. This code is designed to take as input models fitted by FUSION. 
+* if FUSION models have not already been generated, model weights can be downloaded from http://gusevlab.org/projects/fusion/
 
+```
+./GBAT_scripts.sh \
+  
+
+
+```
 
 
 
