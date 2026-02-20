@@ -23,6 +23,9 @@ plink_path="../plink2"
 genotype_output_prefix="GTEX_v8_genotypes_pruned"
 folds="5"
 gene_info_file_path="../../data/GTEx_V8.txt.gz"
+FDR="0.1"
+num_PCs="10"
+models="lasso,enet,blup,xtune"
 output_dir="test_output"
 
 ./setup_genotype_and_expression.sh \
@@ -48,7 +51,27 @@ output_dir="test_output"
 
 
 ./GBAT_scripts.sh \
+    $tissue \
     $FDR \
     $folds \
     $gene_info \
+    $output_dir
+
+./transPCO_scripts.sh \
+    $tissue \
+    $folds \
+    $FDR \
+    $num_PCs \
+    $output_dir
+
+./train_EGRET_models.sh \
+    $tissue \
+    $folds \
+    $models \
+    $output_dir
+
+./run_TWAS_scripts.sh \
+    $tissue \
+    $trait \
+    $gwas_sumstat_dir \
     $output_dir

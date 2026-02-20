@@ -4,6 +4,9 @@ trait=$2
 gwas_sumstat_dir=$3
 $output_dir=$3
 
+
+home=/expanse/lustre/projects/ddp412/kbrunton
+
 Rscript 16.5_create_EGRET_pos.R \
     -tissue $tissue
 
