@@ -1,0 +1,16 @@
+scripts/test_results/
+xtune_fusion_results/
+xtune_fusion_models/
+z_matrices/
+plink_results/
+xtune_bed_files/
+pos_files/
+plink2
+plink2R-master/
+fold_0_info/
+fold_1_info/
+fold_2_info/
+fold_3_info/
+fold_4_info/
+fold_5_info/
+expression_files/
