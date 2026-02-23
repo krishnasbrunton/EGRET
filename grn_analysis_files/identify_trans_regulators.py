@@ -33,13 +33,11 @@ sumstats['trans_component'] = (
 tissue_genes_path = f"expression_files/{tissue}_expression.txt.gz"
 tissue_genes = pd.read_csv(tissue_genes_path, header = 0, sep = '\t')
 
-# Load gene annotation (GTEx format assumed)
 gene_annot = pd.read_csv("../data/GTEx_V8.txt.gz", sep='\t')
 gene_annot = gene_annot[['geneId', 'name', '#chrom', 'chromStart', 'chromEnd']]
 gene_annot['#chrom'] = gene_annot['#chrom'].str.replace('chr', '').astype(str)
 gene_annot = gene_annot[gene_annot['geneId'].isin(tissue_genes['gene_id'])]
 
-# Build a KDTree for gene positions by chromosome
 gene_kdtrees = {}
 for chrom in gene_annot['#chrom'].unique():
     positions = gene_annot[gene_annot['#chrom'] == chrom][['chromStart']].values
@@ -52,7 +50,6 @@ for _, row in sumstats[sumstats['trans_component']].iterrows():
     best_model = row['best_model']
     gene_chr = gene_annot.loc[gene_annot['geneId'] == gene, '#chrom'].values[0]
     
-    # Load RDat file
     rdat_path = f"xtune_fusion_models/{tissue}/cis_MatrixeQTL_GBAT_transPCO_FDR_0.1/{gene}.wgt.RDat"
     print(rdat_path)
     try:
@@ -66,11 +63,9 @@ for _, row in sumstats[sumstats['trans_component']].iterrows():
     model_weights  = rdat['wgt.matrix'][model]
     model_weights = model_weights[model_weights != 0]
 
-    # Get the SNP metadata, aligning by SNP ID
     snp_info = rdat['snps']
     snp_info.index = rdat['wgt.matrix'].index  # Align index with weights
 
-    # Get the chromosome per SNP
     snp_chr = snp_info.loc[model_weights.index, 'V1'].astype(str)
     trans_weights = model_weights[snp_chr != gene_chr]
     

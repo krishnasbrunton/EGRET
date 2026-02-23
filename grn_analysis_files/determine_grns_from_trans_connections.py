@@ -40,7 +40,6 @@ for tissue in tissues:
     )
 
     # Fill in matrix with 1 where connection exists
-    # creates a matrix of trans regulators (rows) and the genes they regulate (columns)
     for _, row in trans_connections.iterrows():
         trans_connection_matrix.loc[row["egene"], row["target_gene"]] = 1
 
@@ -80,19 +79,14 @@ for tissue in tissues:
 
     # Filter and save each cluster separately
     for cluster_id in multi_gene_clusters:
-        # Genes in this cluster
         filtered_genes = gene_clusters[gene_clusters['Cluster'] == cluster_id]['Gene']
         
-        # Subset matrix to these target genes
         submatrix = trans_connection_matrix.loc[:, filtered_genes]
 
-        # Count how many genes in the cluster each regulator connects to
-        regulator_counts = submatrix.sum(axis=1).sort_values(ascending=False)
 
-        # Optionally, keep only regulators that connect to ≥ 2 genes in the cluster
+        regulator_counts = submatrix.sum(axis=1).sort_values(ascending=False)
         top_regulators = regulator_counts[regulator_counts >= 2]
 
-        # Save cluster genes
         out_path = os.path.join(output_dir, f"coregulation_cluster_{cluster_id}.txt")
         filtered_genes.to_csv(out_path, sep='\t', index=False, header=False)
 
@@ -159,7 +153,7 @@ scatter = ax.scatter(
     alpha=0.4
 )
 
-legend_marker_size = 15 # Adjust size as needed
+legend_marker_size = 15
 
 
 chrom_borders = list(chrom_offsets.values()) + [cumulative_offset]  # Add last chromosome end
@@ -184,12 +178,10 @@ ax.set_ylim(y_min, y_max)
 # Grid at chromosome boundaries
 ax.grid(True, linestyle="--", alpha=0.6)
 
-# Labels & Formatting
 ax.set_xlabel("Upstream Trans Gene Position")
 ax.set_ylabel("Target Gene Position")
 ax.set_title("Trans Regulators Plot")
 
 
-# Add legend with uniform dot sizes
 plt.tight_layout()
 plt.savefig("EGRET_trans_regulators.pdf", format="pdf", bbox_inches="tight")
