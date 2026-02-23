@@ -24,15 +24,14 @@ for (fold in 0:5) {
 
 	target_gene_expression_file_name <- paste0("fold_", fold, "_info/",tissue,"/train_expression.txt")
 
-    	# Create a new SlicedData object for the target gene expression
     	target_gene_fold <- SlicedData$new()
 
-    	# Set file parameters
-    	target_gene_fold$fileDelimiter <- "\t"      # the TAB character
-    	target_gene_fold$fileOmitCharacters <- "NA" # denote missing values
-    	target_gene_fold$fileSkipRows <- 1          # one row of column labels
-    	target_gene_fold$fileSkipColumns <- 1       # one column of row labels
-    	target_gene_fold$fileSliceSize <- 2000      # read file in pieces of 2,000 rows
+
+    	target_gene_fold$fileDelimiter <- "\t"   
+    	target_gene_fold$fileOmitCharacters <- "NA" 
+    	target_gene_fold$fileSkipRows <- 1    
+    	target_gene_fold$fileSkipColumns <- 1  
+    	target_gene_fold$fileSliceSize <- 2000     
 
     	# Load the file
     	target_gene_fold$LoadFile(target_gene_expression_file_name)
@@ -43,7 +42,6 @@ for (fold in 0:5) {
 	# Remove NA values from matched indices
 	matched_cols <- c(1,matched_cols[!is.na(matched_cols)])
 	
-	# Subset using the valid column indices
 	prediction_subset <- cis_predicted_expression[, matched_cols, with = FALSE]
 	
         if (!file.exists(paste0("GBAT/",tissue,"/fold_",fold,"/"))) {
@@ -53,11 +51,11 @@ for (fold in 0:5) {
 
         predicted_gene_expression_file_name = paste0("GBAT/",tissue,"/fold_",fold,"/cis_predicted_expression.txt")
         predicted_gene_expression = SlicedData$new()
-        predicted_gene_expression$fileDelimiter = "\t"      # the TAB character
-        predicted_gene_expression$fileOmitCharacters = "NA" # denote missing values
-        predicted_gene_expression$fileSkipRows = 1          # one row of column labels
-        predicted_gene_expression$fileSkipColumns = 1       # one column of row labels
-        predicted_gene_expression$fileSliceSize = 2000      # read file in pieces of 2,000 rows
+        predicted_gene_expression$fileDelimiter = "\t"     
+        predicted_gene_expression$fileOmitCharacters = "NA" 
+        predicted_gene_expression$fileSkipRows = 1         
+        predicted_gene_expression$fileSkipColumns = 1      
+        predicted_gene_expression$fileSliceSize = 2000     
         predicted_gene_expression$LoadFile( predicted_gene_expression_file_name )
 
 

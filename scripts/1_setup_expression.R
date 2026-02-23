@@ -60,7 +60,7 @@ residual_gene_expression_df = as.data.frame(residual_gene_expression)
 residual_gene_expression_df$gene_id = expression_file$gene_id
 
 # Reorder columns to place gene_id first
-#residual_gene_expression_df = residual_gene_expression_df[, c("gene_id", setdiff(names(residual_gene_expression_df), "gene_id"))]
+residual_gene_expression_df = residual_gene_expression_df[, c("gene_id", setdiff(names(residual_gene_expression_df), "gene_id"))]
 
 # Write to file with fwrite
 fwrite(residual_gene_expression_df, paste0(opt$output_dir,"/expression_files/",tissue,"_expression_regressed.txt.gz"), col.names = TRUE, row.names = FALSE, quote = FALSE, sep = '\t')

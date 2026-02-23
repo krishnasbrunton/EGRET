@@ -1,7 +1,6 @@
 library(data.table)
 library(optparse)
 
-# Define command-line options
 option_list = list(
   make_option("--tissue", type = "character", default = "Whole_Blood", 
               help = "Tissue name to process", metavar = "character"),
@@ -13,7 +12,6 @@ option_list = list(
 	      help = "place where association results are stored")
 )
 
-# Parse command-line arguments
 opt = parse_args(OptionParser(option_list = option_list))
 
 # Extract arguments
@@ -32,7 +30,7 @@ for (fold in 1:5) {
 
   PCO_association_dir = paste0("../transPCO/transPCO_results/", tissue, "/fold_", fold, "/")
 
-  # Create bed directory
+
   bed_dir = paste0("transPCO/", tissue, "/fold_", fold, "/",output_dir,"/")
   dir.create(bed_dir, recursive = TRUE)
   
@@ -57,6 +55,7 @@ for (fold in 1:5) {
     genes_in_module = fread(paste0(module_dir, module, ".txt"), header = FALSE)
     genes_in_module = unlist(genes_in_module$V1)
     print(sig_results)
+    
     # Identify significant SNPs for each gene in this module
     for (gene in genes_in_module) {
       sig_snps_per_gene = unique(sig_results$rsIDs[sig_results$module == module])

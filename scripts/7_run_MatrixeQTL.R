@@ -23,20 +23,20 @@ for (fold in 0:opt$folds) {
 
 	expression_file_name = paste0(output_dir,"/fold_",fold,"_info/",tissue,"/train_expression.txt")
         gene = SlicedData$new()
-        gene$fileDelimiter = "\t"      # the TAB character
-        gene$fileOmitCharacters = "NA" # denote missing values
-        gene$fileSkipRows = 1          # one row of column labels
-        gene$fileSkipColumns = 1       # one column of row labels
-        gene$fileSliceSize = 2000      # read file in pieces of 2,000 rows
+        gene$fileDelimiter = "\t"    
+        gene$fileOmitCharacters = "NA" 
+        gene$fileSkipRows = 1         
+        gene$fileSkipColumns = 1     
+        gene$fileSliceSize = 2000     
         gene$LoadFile( expression_file_name )
 
 	SNP_file_name = paste0(output_dir,"/fold_",fold,"_info/",tissue,"/train_genotypes.txt")
 	snps = SlicedData$new()
-	snps$fileDelimiter = "\t"      # the TAB character
-	snps$fileOmitCharacters = "NA" # denote missing values
-	snps$fileSkipRows = 1          # one row of column labels
-	snps$fileSkipColumns = 1       # one column of row labels
-	snps$fileSliceSize = 20000      # read file in pieces of 2,000 rows
+	snps$fileDelimiter = "\t"   
+	snps$fileOmitCharacters = "NA" 
+	snps$fileSkipRows = 1        
+	snps$fileSkipColumns = 1    
+	snps$fileSliceSize = 20000    
 	snps$LoadFile( SNP_file_name )
 
 	errorCovariance = numeric()

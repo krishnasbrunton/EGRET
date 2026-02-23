@@ -17,7 +17,7 @@ option_list = list(
 opt = parse_args(OptionParser(option_list=option_list))
 tissue = opt$tissue
 
-# -- SET-UP INPUT DIRECTORIES -- 
+
 if (!is.na(opt$results_dir)) {
 	file_dir = opt$results_dir
 } else {
@@ -35,8 +35,8 @@ if (!is.na(opt$plink_dir)) {
 if (!is.na(opt$weight_dir)) {
         weight_dir = opt$weight_dir
 } else {
-        #manually set weight file directory
-        weight_dir = paste0("weights/",opt$tissue,"/cis_transPCO_old/")
+	#manually set weight file directory
+	weight_dir = paste0("weights/",opt$tissue,"/cis_transPCO_old/")
 }
 if (!is.na(opt$output_file)) {
 	output_file = opt$output_file
@@ -45,7 +45,7 @@ if (!is.na(opt$output_file)) {
 	output_file = paste0("results_sumstats/",opt$tissue,"/cis_transPCO_old.txt")
 }
 
-# -- OBTAIN INFO FROM GIVEN DIRECTORIES --
+
 fusion_result_files = list.files(file_dir)
 pattern_to_exclude = "alphas"
 fusion_result_files = fusion_result_files[!grepl(pattern_to_exclude, fusion_result_files)]
