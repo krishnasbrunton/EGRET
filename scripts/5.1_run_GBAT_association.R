@@ -37,16 +37,17 @@ for (fold in 0:5) {
     	target_gene_fold$LoadFile(target_gene_expression_file_name)
 
         fold_individuals = fread(paste0(opt$output_dir,"/fold_",fold,"_info/",tissue,"/train_individuals.txt"),header = F)
-	matched_cols <- match(paste0("0:", unlist(fold_individuals$V1)), colnames(cis_predicted_expression))
+	matched_cols <- match(paste0(unlist(fold_individuals$V1)), colnames(cis_predicted_expression))
 
 	# Remove NA values from matched indices
 	matched_cols <- c(1,matched_cols[!is.na(matched_cols)])
 	
 	prediction_subset <- cis_predicted_expression[, matched_cols, with = FALSE]
 	
-        if (!file.exists(paste0("GBAT/",tissue,"/fold_",fold,"/"))) {
-                dir.create(paste0("GBAT/",tissue,"/fold_",fold,"/"), recursive = T)
+        if (!file.exists(paste0(opt$output_dir,"/GBAT/",tissue,"/fold_",fold,"/"))) {
+                dir.create(paste0(opt$output_dir,"/GBAT/",tissue,"/fold_",fold,"/"), recursive = T)
         }
+
         fwrite(prediction_subset,paste0(opt$output_dir,"/GBAT/",tissue,"/fold_",fold,"/cis_predicted_expression.txt"),row.names = F, col.names = T,quote = F, sep = '\t')
 
         predicted_gene_expression_file_name = paste0(opt$output_dir,"/GBAT/",tissue,"/fold_",fold,"/cis_predicted_expression.txt")

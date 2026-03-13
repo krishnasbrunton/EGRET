@@ -53,8 +53,6 @@ if false ; then
     $genotype_output_prefix \
     $output_dir
 
-fi
-
 cis_model_dir="${home_dir}/FUSION/${tissue}/cis/"
 ./GBAT_scripts.sh \
     $tissue \
@@ -66,11 +64,15 @@ cis_model_dir="${home_dir}/FUSION/${tissue}/cis/"
     $genotypes_file_path \
     $output_dir
 
+fi
+
 ./transPCO_scripts.sh \
     $tissue \
     $folds \
     $FDR \
     $num_PCs \
+    $gene_info_file_path \
+    $plink_path \
     $output_dir
 
 ./train_EGRET_models.sh \

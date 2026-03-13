@@ -1,7 +1,6 @@
 library(data.table)
 library(optparse)
 
-# Load necessary functions and shared library
 source("ModifiedPCOMerged.R")
 source("ModifiedSigmaOEstimate.R")
 source("davies.R")
@@ -20,7 +19,13 @@ option_list = list(
   make_option("--association_dir", action = "store", default = NA, type = "character",
               help = "Directory with association results"),
   make_option("--results_dir", action = "store", default = NA, type = 'character',
-              help = "Directory to put PCO association results")
+              help = "Directory to put PCO association results"),
+  make_option("--output_dir", action = "store", default = NA, type = 'character',
+              help = "Base output directory for the pipeline"),
+  make_option("--folds", action = "store", default = 5, type = 'integer',
+              help = "Number of cross-validation folds (iterates fold_0 through fold_N)"),
+  make_option("--gene_info", action = "store", default = NA, type = 'character',
+              help = "Path to gene info file (e.g. GTEx_V8.txt.gz)")
 )
 
 opt = parse_args(OptionParser(option_list = option_list))
@@ -29,17 +34,18 @@ module = opt$module
 module_dir = opt$module_dir
 association_dir = opt$association_dir
 results_dir = opt$results_dir
+base_dir = opt$output_dir
 
 # Read gene information and expression data upfront
-gene_info = fread("../data/GTEx_V8.txt.gz", header = TRUE)
-gene_expression = fread(paste0("expression_files/", tissue, "_expression_regressed.txt.gz"), header = TRUE)
+gene_info = fread(opt$gene_info, header = TRUE)
+gene_expression = fread(file.path(base_dir, "expression_files", paste0(tissue, "_expression_regressed.txt.gz")), header = TRUE)
 
 # Process module across folds
-for (fold in 0:5) {
+for (fold in 0:opt$folds) {
   cat(sprintf("Processing Fold: %d, Module: %s\n", fold, module))
 
   # Define module path
-  module_path = file.path("transPCO", tissue, paste0("fold_", fold), module_dir, module)
+  module_path = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), module_dir, module)
   if (!file.exists(module_path)) {
     cat(sprintf("Module file not found: %s\n", module_path))
     next
@@ -48,7 +54,7 @@ for (fold in 0:5) {
   genes_in_module = fread(module_path, header = FALSE)
 
   # Define results directory
-  fold_results_dir = file.path("transPCO", tissue, paste0("fold_", fold), results_dir)
+  fold_results_dir = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), results_dir)
   dir.create(fold_results_dir, recursive = TRUE, showWarnings = FALSE)
 
   module_name = sub("\\..*$", "", module)  # Remove file extension
@@ -69,7 +75,7 @@ for (fold in 0:5) {
     # Subset gene expression
     gene_expression_subset = gene_expression[gene_id %in% genes_in_module_filtered$V1, ]
     gene_expression_subset = gene_expression_subset[match(genes_in_module_filtered$V1, gene_expression_subset$gene_id), ]
-    
+
     if (nrow(gene_expression_subset) == 0) {
       cat(sprintf("No gene expression data for Module: %s, Chromosome: %d, Fold: %d\n", module_name, chr, fold))
       next
@@ -79,7 +85,7 @@ for (fold in 0:5) {
     Sigma = cor(t(gene_expression_subset))  # Compute correlation matrix
 
     # Read Z matrix
-    z_matrix_path = file.path("transPCO", tissue, paste0("fold_", fold), association_dir,
+    z_matrix_path = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), association_dir,
                               paste0("matrix_", module_name, "_chr_", chr, ".txt.gz"))
 
     if (!file.exists(z_matrix_path)) {
@@ -103,8 +109,8 @@ for (fold in 0:5) {
     output_file = file.path(fold_results_dir, paste0(module_name, "_chr_", chr, ".txt.gz"))
     pvals = data.table(rsIDs = snps, pval = pvals)
     fwrite(pvals, file = output_file, sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
-    if (file.exists(paste0(results_dir, "/", module_name, "_chr_", chr, ".txt.gz"))) {
-	file.remove(z_matrix_path)
+    if (file.exists(output_file)) {
+      file.remove(z_matrix_path)
     }
 
   }

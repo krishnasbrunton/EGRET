@@ -55,12 +55,15 @@ for (gene in genes) {
 	} else {
 		GBAT_snps = data.table()
 	}
+	# Matrix eQTL
 	MatrixeQTL_bed_path = paste0("MatrixeQTL/",tissue,"/fold_",fold,"/",opt$MatrixeQTL_bed_dir,"/",gene_name,".txt")
 	if (file.exists(MatrixeQTL_bed_path)) {
 		MatrixeQTL_snps = fread(MatrixeQTL_bed_path,header = F)
 	} else {
 		MatrixeQTL_snps = data.table()
 	}
+
+	# trans-PCO
 	transPCO_bed_path = paste0("transPCO/",tissue,"/fold_",fold,"/",opt$transPCO_bed_dir,"/",gene_name,".txt")
 	if (file.exists(paste0(transPCO_bed_path)) ) {
 		transPCO_snps = fread(transPCO_bed_path,header = F)

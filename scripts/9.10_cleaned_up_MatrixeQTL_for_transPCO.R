@@ -9,10 +9,16 @@ option_list = list(
               help="tissue"),
   make_option("--module", action="store", default=NA, type='character',
               help="module file name"),
-  make_option("--module_dir", action="store", default=NA, type='character',
-              help="directory containing modules"),
+  make_option("--module_dir", action="store", default="modules", type='character',
+              help="subdirectory name containing module gene lists (within transPCO/tissue/fold_N/)"),
   make_option("--output_dir", action="store", default=NA, type='character',
-              help="directory to store association results")
+              help="base output directory for the pipeline"),
+  make_option("--folds", action="store", default=5, type='integer',
+              help="number of cross-validation folds (iterates fold_0 through fold_N)"),
+  make_option("--plink_path", action="store", default=NA, type='character',
+              help="path to plink executable (used as fallback if genotype txt files are missing)"),
+  make_option("--genotype_prefix", action="store", default="GTEX_v8_genotypes_pruned", type='character',
+              help="basename of LD-pruned plink genotype files in output_dir/genotype_files/")
 )
 opt = parse_args(OptionParser(option_list=option_list))
 
@@ -20,31 +26,31 @@ opt = parse_args(OptionParser(option_list=option_list))
 tissue = opt$tissue
 module = opt$module
 module_dir = opt$module_dir
-output_dir = opt$output_dir
+base_dir = opt$output_dir
 
-for (fold in 0:5) {
-  module_path = file.path("transPCO", tissue, paste0("fold_", fold), module_dir, module)
-  
+for (fold in 0:opt$folds) {
+  module_path = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), module_dir, module)
+
   if (!file.exists(module_path)) next
-  
+
   genes_in_module = fread(module_path, header = FALSE)
-  
+
   for (chr in 1:22) {
     module_name = strsplit(module, "\\..")[[1]][1]
-    result_file = file.path("transPCO", tissue, paste0("fold_", fold), "association_results",
+    result_file = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), "association_results",
                            paste0(module_name, "_chr_", chr, ".txt.gz"))
     if (file.exists(result_file)) next
 
     # Prepare gene expression file
-    gene_expression_path = file.path(paste0("fold_", fold, "_info"), tissue, "train_expression.txt")
+    gene_expression_path = file.path(base_dir, paste0("fold_", fold, "_info"), tissue, "train_expression.txt")
     gene_expression = fread(gene_expression_path, header = TRUE)
-    
+
     gene_expression_module = gene_expression[match(genes_in_module$V1, gene_expression$gene_id), ]
-    expr_output_dir = file.path("transPCO", tissue, paste0("fold_", fold), "expression_files")
+    expr_output_dir = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), "expression_files")
     dir.create(expr_output_dir, recursive = TRUE, showWarnings = FALSE)
     expr_output_file = file.path(expr_output_dir, paste0(module_name, ".txt"))
     fwrite(gene_expression_module, expr_output_file, sep = '\t', quote = FALSE, col.names = TRUE)
-    
+
     # Load gene expression
     gene = SlicedData$new()
     gene$fileDelimiter = "\t"
@@ -55,22 +61,21 @@ for (fold in 0:5) {
     gene$LoadFile(expr_output_file)
 
     # Prepare genotype file
-    geno_output_dir = file.path("transPCO", tissue, paste0("fold_", fold), "genotype_files")
-    dir.create(geno_output_dir, recursive = TRUE, showWarnings = FALSE)
-    
+    geno_output_dir = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), "genotype_files")
     geno_output_file = file.path(geno_output_dir, paste0("train_genotypes_chr_", chr, ".txt"))
-    
+
     if (!file.exists(geno_output_file)) {
-      train_individuals_path = file.path(paste0("fold_", fold, "_info"), tissue, "train_individuals.txt")
-      plink_cmd = paste0("../../kakamatsu/plink2 --bfile genotype_files/GTEX_v8_genotypes_pruned ",
-                         "--make-bed --keep ", train_individuals_path,
-                         " --chr ", chr,
-                         " --out ", file.path(geno_output_dir, paste0("train_genotypes_chr_", chr)))
+      dir.create(geno_output_dir, recursive = TRUE, showWarnings = FALSE)
+      train_individuals_path = file.path(base_dir, paste0("fold_", fold, "_info"), tissue, "train_individuals.txt")
+      plink_cmd = paste(opt$plink_path,
+                        "--bfile", file.path(base_dir, "genotype_files", opt$genotype_prefix),
+                        "--make-bed --keep", train_individuals_path,
+                        "--chr", chr,
+                        "--out", file.path(geno_output_dir, paste0("train_genotypes_chr_", chr)))
       system(plink_cmd)
 
       genotypes = read_plink(file.path(geno_output_dir, paste0("train_genotypes_chr_", chr)), impute='avg')
       genotypes$bed = scale(genotypes$bed)
-
       genotypes_transposed = as.data.table(t(genotypes$bed), keep.rownames = "SNP")
       fwrite(genotypes_transposed, geno_output_file, row.names = FALSE, col.names = TRUE, quote = FALSE, sep = '\t')
     }
@@ -85,9 +90,8 @@ for (fold in 0:5) {
     snps$LoadFile(geno_output_file)
 
     # Run Matrix eQTL
-    assoc_output_dir = file.path("transPCO", tissue, paste0("fold_", fold), output_dir)
+    assoc_output_dir = file.path(base_dir, "transPCO", tissue, paste0("fold_", fold), "association_results")
     dir.create(assoc_output_dir, recursive = TRUE, showWarnings = FALSE)
-    print(assoc_output_dir)
     assoc_output_file = file.path(assoc_output_dir, paste0(module_name, "_chr_", chr, ".txt"))
     
     Matrix_eQTL_main(

@@ -9,7 +9,7 @@ Rscript 12.4_make_xtune_bed_no_cross_mappable_by_fold.R \
     --MatrixeQTL_bed_dir results_FDR_0.1 \
     --GBAT_bed_dir results_FDR_0.1 \
     --transPCO_bed_dir bed_files_FDR_0.1 \
-    --output_dir cis_transPCO_FDR_0.1 \
+    --output_dir EGRET \
     --exclude_crossmap TRUE \
     --models Cis,MatrixeQTL,GBAT,transPCO \
     --output_dir $output_dir 

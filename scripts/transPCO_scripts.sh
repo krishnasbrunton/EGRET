@@ -1,65 +1,99 @@
 #!/bin/bash
 tissue=$1
-FDR=$3
 folds=$2
-num_PCs=$2
-output_dir=$4
+FDR=$3
+num_PCs=$4
+gene_info=$5
+plink_path=$6
+output_dir=$7
+genotype_prefix=${8:-"GTEX_v8_genotypes_pruned"}
 
+if false ; then
 
 Rscript 9.0_run_WGCNA_clustering.R \
-	--expression expression_files/Whole_Blood_expression.txt.gz \
-	--out modules/ \
-	--individuals ../TWAS_across_tissues/individuals_per_tissue/Whole_Blood_individuals.txt \
-	--covariates covariate_files/Whole_Blood_covariates.txt.gz \
+	--expression ${output_dir}/expression_files/Whole_Blood_expression.txt.gz \
+	--output_dir ${output_dir}/ \
+	--individuals ${output_dir}/fold_0_info/${tissue}/train_individuals.txt \
+	--covariates ${output_dir}/covariate_files/Whole_Blood_covariates.txt.gz \
 	--tissue $tissue \
-	--num_PCs 5
+    --gene_info $gene_info \
+	--num_PCs 10
+
 
 Rscript 9.1_initialize_chr_genotypes.R \
-    --tissue $tissue
+    --tissue $tissue \
+    --output_dir $output_dir \
+    --folds $folds \
+    --genotype_prefix $genotype_prefix \
+    --plink_path $plink_path
 
-directories=("transPCO/$tissue/fold_0/modules" "transPCO/$tissue/fold_1/modules" "transPCO/$tissue/fold_2/modules" "transPCO/$tissue/fold_3/modules" "transPCO/$tissue/fold_4/modules" "transPCO/$tissue/fold_5/modules")
 
-# Initialize a variable to store the max number of files
+
+
+# Find the fold with the most modules (use as the canonical module list)
 max_files=0
-
-# Loop through each directory
-for dir in "${directories[@]}"; do
-    # Count the number of files in the directory (not including subdirectories)
-    file_count=$(find "$dir" -type f | wc -l)
-        echo $file_count   
-    # Check if the current directory has more files than the current max
+for fold in $(seq 0 $folds); do
+    dir="${output_dir}/transPCO/${tissue}/fold_${fold}/modules"
+    file_count=$(find "$dir" -type f 2>/dev/null | wc -l)
     if (( file_count > max_files )); then
         max_files=$file_count
         max_module_dir=$dir
     fi
 done
-echo $max_module_dir
-module_path=$max_module_dir/
+echo "Using module list from: $max_module_dir"
 
-for file in "$module_path"*; do
-    Rscript 9.10_cleaned_up_MatrixeQTL_for_transPCO.R \
-        --tissue $tissue \
-        --module $(basename $file) \
-        --module_dir modules \
-        --output_dir association_results
+job_ids=()
+for file in "$max_module_dir"/*; do
+    jid=$(sbatch --parsable run_transPCO_matrixeQTL_job.sh \
+        $tissue \
+        $(basename $file) \
+        modules \
+        $output_dir \
+        $folds \
+        $plink_path \
+        $genotype_prefix)
+    job_ids+=($jid)
+    echo "Submitted job $jid for module $(basename $file)"
 done
+echo "Submitted ${#job_ids[@]} module jobs"
 
-modules=$(find transPCO/${tissue}/fold_{0..5}/modules/ -type f -exec basename {} \; | sort | uniq)
+# Build dependency string from all MatrixEQTL job IDs
+if [ ${#job_ids[@]} -gt 0 ]; then
+    dep_str=$(IFS=:; echo "${job_ids[*]}")
+    dependency="--dependency=afterok:${dep_str}"
+else
+    dependency=""
+fi
 
+fi
+# Submit one PCO association job per module, dependent on all MatrixEQTL jobs
+modules=$(find ${output_dir}/transPCO/${tissue}/fold_*/modules/ -type f -exec basename {} \; | sort | uniq)
+
+pco_job_ids=()
 for module in $modules
 do
-    echo $module
-    Rscript 9.3_transPCO_multivariate_association_by_module.R \
-    --tissue $tissue \
-    --module_dir modules \
-    --module ${module} \
-    --results_dir PCO_association_results \
-    --association_dir association_results
+    jid=$(sbatch --parsable $dependency run_transPCO_PCO_association_job.sh \
+        $tissue \
+        $module \
+        modules \
+        $output_dir \
+        $folds \
+        $gene_info)
+    pco_job_ids+=($jid)
+    echo "Submitted PCO job $jid for module $module"
 done
+echo "Submitted ${#pco_job_ids[@]} PCO association jobs"
 
-Rscript 11_transPCO_results_analysis_by_FDR.R \
-    --tissue $tissue \
-    --FDR $FDR \
-    --PCO_association_dir PCO_association_results \
-    --output_dir bed_files_FDR_$fdr \
-    --module_dir modules
+# Submit results analysis after all PCO jobs finish
+if [ ${#pco_job_ids[@]} -gt 0 ]; then
+    pco_dep_str=$(IFS=:; echo "${pco_job_ids[*]}")
+    pco_dependency="--dependency=afterok:${pco_dep_str}"
+else
+    pco_dependency=""
+fi
+
+sbatch $pco_dependency run_transPCO_results_analysis_job.sh \
+    $tissue \
+    $FDR \
+    $output_dir \
+    $folds
